@@ -10,4 +10,18 @@ public with sharing class AccountTriggerHandler {
             }
         }
         }
+
+    /*Method to update Account Shipping Address with Account Billing Address
+    whenever an Account record is created or updated.*/
+    public static void updateShippingAddress(List<Account> newAccounts){
+        if(!newAccounts.isEmpty()){
+            for(Account acc : newAccounts){
+                acc.ShippingStreet = acc.BillingStreet;
+                acc.ShippingCity = acc.BillingCity;
+                acc.ShippingState = acc.BillingState;
+                acc.ShippingCountry = acc.BillingCountry;
+                acc.ShippingPostalCode = acc.BillingPostalCode;
+            }
+        }
+    }
     }
