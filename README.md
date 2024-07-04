@@ -27,3 +27,15 @@ When an Account is created/updated, write a trigger to ensure a value in the 'Ph
 Trigger - 2
 
 When an Account record is created/updated, write a trigger that updates the Shipping Address with the Billing Address values. Write a test class for the same.
+
+Trigger - 3 (Update Child records by Parent)
+
+When an Account Phone field is updated, then update the Phone field of all the related Contacts of the Account with the same value.
+Also, write a test class for the same.
+
+
+Trigger - 4 (Update Parent by Child)
+
+When a Contact's Description is updated, then its parent Account's Description should also be updated with the same value. Write a Test Class for the same.
+
+

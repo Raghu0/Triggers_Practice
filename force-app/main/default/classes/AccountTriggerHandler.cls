@@ -60,7 +60,9 @@ public with sharing class AccountTriggerHandler {
     //Update all the Contact records, at once.
     if(!contactsToBeUpdated.isEmpty()){
         update contactsToBeUpdated;
+       
     }
     }
-    }
+
+}
  
