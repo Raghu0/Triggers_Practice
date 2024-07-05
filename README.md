@@ -39,3 +39,8 @@ Trigger - 4 (Update Parent by Child)
 When a Contact's Description is updated, then its parent Account's Description should also be updated with the same value. Write a Test Class for the same.
 
 
+Trigger - 5 (Roll Up Summary Trigger)
+
+Write a trigger to count the number of related contacts of an account and display the contact count on the Accounts' custom field. Write a test class for the same. (Note: Create a custom field on Account object - Number_of_Contacts__c)
+
+Hint: The Count of Contact's related to an Account will be changed when a new Contact is Created to an Account, or a Contact is deleted from an Account, or a Contact is Undeleted from RecycleBin or a Contact's parent Account is changed from 'abc' to 'xyz.
