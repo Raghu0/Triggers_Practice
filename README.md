@@ -49,3 +49,8 @@ Trigger - 6 (Prevention of Duplication of records)
 
 Write a Trigger to prevent duplication of account record based on name whenever a record is inserted or updated. Write a Test Class for the same.
 Note: Consider the scenario that there are already few duplicate records in the org. Example: There are two Accounts with same name - 'Acme Intl'. Now prevent the any new record creation with the same or existing record updation to this name.
+
+Trigger - 7
+
+Write a trigger to create a related Contact of Account with same phone as Account's phone if custom checkbox field on Account is checked.
+(Note: Create a custom checkbox field on Account - Create_Contact_Checknbox__c on Account as prerequisite).

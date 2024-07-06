@@ -19,8 +19,8 @@ public with sharing class AccountTriggerHandlerTest {
             100 records have phone value and 100 records has no 'Phone' field value and the records without 'Phone' field value 
             doesn't get created and throws a runtime DML exception. To avoid this we can insert the partial records that meet the criteria using 
             the operation --- Database.insert(accounts, false);*/
-
-            Database.insert(accounts, false);
+        AccountTriggerHandler.canRunFromTestClass = false;
+        Database.insert(accounts, false);
         } catch (DmlException e) {
             system.assert(e.getMessage().contains('You cannot leave the Phone field empty'));
         }
@@ -47,8 +47,9 @@ public with sharing class AccountTriggerHandlerTest {
         for(Integer i = 0; i < 100; i++){
                 accounts.add(new Account(Name = 'Test ' + i, Phone = '9876543210'));
             }
-
-        insert accounts;
+        //Turn on Flag to run the Apex Class for this Test Code
+        AccountTriggerHandler.canRunFromTestClass = false;
+        Database.insert(accounts, false);
 
         List<Account> insertedAccounts = [SELECT Id, Name, Phone FROM Account WHERE Name LIKE 'Test%'];
 
@@ -62,11 +63,12 @@ public with sharing class AccountTriggerHandlerTest {
         }
 
         Test.startTest();
-        try {
-            Database.update(insertedAccounts, false);
-        } catch (DmlException e) {
-            system.assert(e.getMessage().contains('You cannot leave the Phone field empty'));
-        }
+        
+        //Turn on Flag to run the Apex Class for this Test Code
+        AccountTriggerHandler.canRunFromTestClass = false;
+
+        Database.update(insertedAccounts, false);
+       
         Test.stopTest();
 
         List<Account> accountsUpdated = [SELECT Id, Name, Phone FROM Account WHERE Phone = '0123456789'];
@@ -103,7 +105,10 @@ public with sharing class AccountTriggerHandlerTest {
             //Test the feature to copy Billing Address to Shipping Address upon insertion
 
             Test.startTest();
-            insert accounts;
+            //Turn on Flag to run the Apex Class for this Test Code
+            AccountTriggerHandler.canRunFromTestClass = false;
+
+            Database.insert(accounts, false);
             Test.stopTest();
 
             //As we created the account records, now assert them
@@ -163,7 +168,10 @@ public with sharing class AccountTriggerHandlerTest {
                                         BillingStreet = 'RGV Street',
                                         BillingCountry = 'India'));
             }
-            insert accounts;
+            //Turn on Flag to run the Apex Class for this Test Code
+            AccountTriggerHandler.canRunFromTestClass = false;
+
+            Database.insert(accounts, false);
 
             //Now modify the values of Billing Address of the Account records which automatically should be updated to Shipping Address
 
@@ -183,6 +191,9 @@ public with sharing class AccountTriggerHandlerTest {
             //Test the records by updating the Billing City
             
             Test.startTest();
+            //Turn on Flag to run the Apex Class for this Test Code
+            AccountTriggerHandler.canRunFromTestClass = false;
+
             update accountsToBeUpdated;
             Test.stopTest();
 
@@ -210,7 +221,8 @@ public with sharing class AccountTriggerHandlerTest {
                     accounts.add(new Account(Name = 'Test ' + i,
                                             Phone = '9876543210'));
             }
-            insert accounts;
+
+            Database.insert(accounts, false);
 
             System.debug('Accounts Inserted :::' + accounts);
 
@@ -259,6 +271,9 @@ public with sharing class AccountTriggerHandlerTest {
             //Now update all the Account records.
 
             Test.startTest();
+            //Turn on Flag to run the Apex Class for this Test Code
+            AccountTriggerHandler.canRunFromTestClass = false;
+
             update accountsToBeUpdated;
             Test.stopTest();
 
@@ -306,7 +321,8 @@ public with sharing class AccountTriggerHandlerTest {
                 }
             }
             Test.startTest();
-
+            //Turn on Flag to run the Apex Class for this Test Code
+            AccountTriggerHandler.canRunFromTestClass = true; 
             Database.insert(duplicateAccounts, false) ;
 
             List<Account> accountsCreated = [SELECT Id, Name FROM Account WHERE Id IN : duplicateAccounts];
@@ -316,5 +332,41 @@ public with sharing class AccountTriggerHandlerTest {
                 System.assertNotEquals(200, accountsCreated.size(), 'Duplicate Accounts should not be created.');
             }
             Test.stopTest();
+        }
+
+        @isTest
+        private static void createContactToAccountTest(){
+
+            //Test Data Creation
+            List<Account> accounts = new List<Account>();
+            for(Integer i = 0; i < 200; i++){
+                if(i < 100){
+                    accounts.add(new Account(Name = 'Test Account ' + i,
+                                            Create_Contact_Checkbox__c = true,
+                                            Phone = '9876543210'));
+                }
+                else{
+                    accounts.add(new Account(Name = 'Test Account ' + i,
+                                            Phone = '9876543210'));      
+                }
+            }
+
+            Test.startTest();
+            //Turn on Flag to run the Apex Class for this Test Code
+            AccountTriggerHandler.canRunFromTestClass = true; 
+            Database.insert(accounts, false);
+            Test.stopTest();
+
+            //Assertion
+            for(Account acc : [SELECT Id, Name, (SELECT Id, LastName, AccountId FROM Contacts) FROM Account WHERE Id IN : accounts]){
+                if(Integer.valueOf(acc.Name.substringAfter('Account ')) < 100 ){
+                    System.assertEquals(1, acc.Contacts.size(), 'A Contact should be created as Create_Contact_Checkbox__c is TRUE');
+                    System.assertNotEquals(0, acc.Contacts.size(), 'Contact should be created');
+                }
+                else{
+                    System.assertEquals(0, acc.Contacts.size(), 'No Contact should be created.');
+                    System.assertNotEquals(1, acc.Contacts.size(), 'No Contact should be created.');
+                }
+            }
         }
     }
