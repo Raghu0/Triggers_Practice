@@ -17,7 +17,7 @@ public with sharing class AccountTriggerHandlerTest {
         try {
             /*The reason why I included Database.insert instead of genneral insert operation is as we are inserting List of accounts,
             100 records have phone value and 100 records has no 'Phone' field value and the records without 'Phone' field value 
-            doesn't get created and throws a runtime exception. To avoid this we can insert the partial records that meet the criteria using 
+            doesn't get created and throws a runtime DML exception. To avoid this we can insert the partial records that meet the criteria using 
             the operation --- Database.insert(accounts, false);*/
 
             Database.insert(accounts, false);
@@ -284,7 +284,37 @@ public with sharing class AccountTriggerHandlerTest {
                 System.assertEquals( '8888888888', cont.Phone, 'Contacts Phone is not updated as expected from the Account');
                 System.assertNotEquals('9876543210', cont.Phone, 'Contacts Phone is not updated');
             }
+        }
 
+        @isTest
+        private static void preventDuplicateAccountsTest(){
 
+            //Test data creation
+            List<Account> accounts = new List<Account>();
+            for(Integer i = 0; i < 200; i++){
+                accounts.add(new Account(Name = 'Test Account ' + i, Phone = '9876543210'));
+            }
+            insert accounts;
+
+            List<Account> duplicateAccounts = new List<Account>();
+            for(Integer i = 0; i < 200; i++){
+                if(i < 50){
+                    duplicateAccounts.add(new Account(Name = 'Test Account ' + i, Phone = '9876543210'));
+                }
+                else{
+                    duplicateAccounts.add(new Account(Name = 'Account Test ' + i, Phone = '9876543210'));
+                }
+            }
+            Test.startTest();
+
+            Database.insert(duplicateAccounts, false) ;
+
+            List<Account> accountsCreated = [SELECT Id, Name FROM Account WHERE Id IN : duplicateAccounts];
+            
+            for(Account acc : accountsCreated){
+                System.assertEquals(150, accountsCreated.size(), 'Duplicate Accounts should not be created.');
+                System.assertNotEquals(200, accountsCreated.size(), 'Duplicate Accounts should not be created.');
+            }
+            Test.stopTest();
         }
     }

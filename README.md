@@ -42,5 +42,10 @@ When a Contact's Description is updated, then its parent Account's Description s
 Trigger - 5 (Roll Up Summary Trigger)
 
 Write a trigger to count the number of related contacts of an account and display the contact count on the Accounts' custom field. Write a test class for the same. (Note: Create a custom field on Account object - Number_of_Contacts__c)
-
 Hint: The Count of Contact's related to an Account will be changed when a new Contact is Created to an Account, or a Contact is deleted from an Account, or a Contact is Undeleted from RecycleBin or a Contact's parent Account is changed from 'abc' to 'xyz.
+
+
+Trigger - 6 (Prevention of Duplication of records)
+
+Write a Trigger to prevent duplication of account record based on name whenever a record is inserted or updated. Write a Test Class for the same.
+Note: Consider the scenario that there are already few duplicate records in the org. Example: There are two Accounts with same name - 'Acme Intl'. Now prevent the any new record creation with the same or existing record updation to this name.

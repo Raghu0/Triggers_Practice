@@ -64,4 +64,45 @@ public with sharing class AccountTriggerHandler {
     }
     }
 
+    //Method to prevent duplication of Account records whenever a record is created or updated.
+    public static void preventDuplicateAccounts(List<Account> newAccounts){
+
+        //Set of Account Names that are to be inserted /Updated
+        Set<String> accountNames = new Set<String>();
+
+        //Iterate over the new records about to be inserted /updated and add all the acc names to the set
+        for(Account acc : newAccounts){
+            accountNames.add(acc.Name);
+        }
+
+        /*Collect all the existing account records in the org. Here there can be two scenarios 
+            1. The org is already cleaned and there are no duplicate accounts existing in the org. All Account Names are unique ones
+            2. Unlike above scenario, there can be already existing duplicates existing in the org and we are implementing this apex code to prevent further duplication.
+        Considering the worst case in the above two scenarios, I'm using a Map to collect all the Account records from the org.*/
+
+        Map<String, List<Account>> existingAccounts = new Map<String, List<Account>>();
+
+        //Iterate over all the Account records.
+        for(Account acc : [SELECT Id, Name FROM Account]){
+            if(!existingAccounts.containsKey(acc.Name)){
+                existingAccounts.put(acc.Name, new List<Account>());
+            }
+            else{
+                existingAccounts.get(acc.Name).add(acc);
+            }
+        }
+
+        /*I used multi-value map where the keys are account names and the values are lists of accounts allowed
+         the trigger to handle cases where multiple existing accounts have the same name.*/
+
+         //Now loop over the new Account records and validate the names
+
+         for(Account acct : newAccounts){
+            if(existingAccounts.containsKey(acct.Name)){
+                acct.addError('There is already an Account with this name.');
+            }
+         }
+
+    }
+
 }
